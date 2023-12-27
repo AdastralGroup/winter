@@ -28,5 +28,5 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: linux
-        path: ${{github.workspace}}/Workspace/Code/lib
+        path: ${{github.workspace}}/Code/binding/lib
 

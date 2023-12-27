@@ -17,15 +17,15 @@ ELSE ()
     pkg_check_modules(deps REQUIRED IMPORTED_TARGET glib-2.0)
     pkg_check_modules(deps REQUIRED IMPORTED_TARGET gdk-pixbuf-2.0)
 ENDIF ()
-
+set(CMAKE_SHARED_LIBRARY_PREFIX_CXX "")
 FetchContent_MakeAvailable(GDExtension)
 add_library(${PROJECT_NAME} SHARED binding.cpp register_types.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC ../palace)
 target_include_directories(${PROJECT_NAME} PUBLIC ../shared)
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
-        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/"
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/"
+        ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib/"
+        LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib/"
         OUTPUT_NAME "winter-x64-debug" # make this suck less later
 )
 IF (WIN32)
