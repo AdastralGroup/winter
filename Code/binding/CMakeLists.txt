@@ -22,8 +22,10 @@ FetchContent_MakeAvailable(GDExtension)
 add_library(${PROJECT_NAME} SHARED binding.cpp register_types.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC ../palace)
 target_include_directories(${PROJECT_NAME} PUBLIC ../shared)
+
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib/"
         ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib/"
         LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib/"
         OUTPUT_NAME "winter-x64-debug" # make this suck less later
