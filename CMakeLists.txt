@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 set(CMAKE_CXX_STANDARD 20)
+project("winter" VERSION 1.0 LANGUAGES CXX)
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 	message(FATAL_ERROR "In-source builds are not supported. Please choose a different binary directory.")
 	return()
@@ -14,16 +15,10 @@ string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
 string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
 string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-if(!MSVC)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -fPIC" )
 	set( CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -fPIC" )
 endif()
-foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
-	string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
-	set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${PROJECT_BINARY_DIR}/lib )
-	set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${PROJECT_BINARY_DIR}/lib )
-	set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${PROJECT_BINARY_DIR}/bin )
-endforeach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
 
 #include("${CMAKE_CURRENT_SOURCE_DIR}/AdastralCMakeConfig.cmake")
 #get_property(AD_CMAKE_RELPATH GLOBAL PROPERTY AD_CMAKE_RELPATH)
@@ -49,9 +44,7 @@ endforeach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
 #
 #if(NOT AD_SUBMODULE_MODE)
 #	ad_detect_languages()
-	project("winter"
-		VERSION 1.0
-		LANGUAGES ${AD_LANGUAGES})
+
 #endif()
 #
 #ad_set_build_types()
@@ -73,7 +66,6 @@ endforeach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
 #add_link_options(" -fno-use-linker-plugin")
 #add_compile_options("/p:CLToolPath=C:\\ProgramData\\chocolatey\\lib\\sccache\\tools\\sccache-v0.7.4-x86_64-pc-windows-msvc\\sccache.exe")
 add_subdirectory(Code)
-
 
 #ad_finalize_projects()
 #

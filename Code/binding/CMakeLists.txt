@@ -22,6 +22,12 @@ FetchContent_MakeAvailable(GDExtension)
 add_library(${PROJECT_NAME} SHARED binding.cpp register_types.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC ../palace)
 target_include_directories(${PROJECT_NAME} PUBLIC ../shared)
+set_target_properties(${PROJECT_NAME}
+        PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/"
+        OUTPUT_NAME "winter-x64-debug" # make this suck less later
+)
 IF (WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC shared nlohmann_json::nlohmann_json godot::cpp palace)
 ELSE ()

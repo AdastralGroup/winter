@@ -23,5 +23,5 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: windows
-          path: ${{github.workspace}}/Workspace/Code/binding/bin
+          path: ${{github.workspace}}/Workspace/Code/lib
 
