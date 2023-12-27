@@ -1,3 +1,4 @@
+project(binding LANGUAGES C CXX)
 include(FetchContent)
 
 # Get the name of this folder as the project name
@@ -18,9 +19,9 @@ ELSE ()
 ENDIF ()
 
 FetchContent_MakeAvailable(GDExtension)
-
-ad_create_target(SHARED_LIBRARY ${PROJECT_NAME})
-
+add_library(${PROJECT_NAME} SHARED binding.cpp register_types.cpp)
+target_include_directories(${PROJECT_NAME} PUBLIC ../palace)
+target_include_directories(${PROJECT_NAME} PUBLIC ../shared)
 IF (WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC shared nlohmann_json::nlohmann_json godot::cpp palace)
 ELSE ()
