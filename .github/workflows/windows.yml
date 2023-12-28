@@ -13,6 +13,8 @@ jobs:
       - uses: hendrikmuhs/ccache-action@v1.2
       - uses: seanmiddleditch/gha-setup-ninja@master
       - uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
       - name: Update Stuff
         run: |
           vcpkg install curl
