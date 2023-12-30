@@ -5,6 +5,8 @@ palace::palace() {
   net::get_butler();
   A_printf("[Palace/Init] Fetching server data...\n");
   fetch_server_data();
+  download_assets();
+
 #if _DEBUG
   printf("Soucemods dir: %s\n", sourcemodsPath.string().c_str());
 #endif
@@ -16,8 +18,63 @@ palace::~palace() {
 }
 
 void palace::fetch_server_data() {
-  std::string json = net().get_string_data_from_server(std::string(PRIMARY_URL) + "southbank.json");
+  std::string json = net().get_string_data_from_server(std::string(PRIMARY_URL) + "southbank2.json");
   southbankJson = nlohmann::json::parse(json);  // do error checking here
+}
+
+void palace::download_assets() {
+
+#ifdef _WIN32
+  std::filesystem::path appdata_path = std::filesystem::path(getenv("APPDATA")) / "adastral";
+#else
+  std::filesystem::path appdata_path = std::filesystem::path("./local/share") / "adastral";
+#endif
+
+  if (!std::filesystem::exists(appdata_path)) {
+    std::filesystem::create_directory(appdata_path);
+  }
+
+  // {local path to file, server path to hash file}
+  std::vector<std::pair<std::string, std::string>> cache_lookup = {
+    {BUTLER, std::string(BUTLER) + ".sha256"}};
+
+  for (auto& item : cache_lookup) {
+    std::string local_file_path = (appdata_path / item.first).string();
+    std::string local_hash = A_SHA256(local_file_path);
+    std::string server_hash = net().get_string_data_from_server(std::string(PRIMARY_URL) + item.second);
+    if (strncmp(local_hash.c_str(), server_hash.c_str(), 64) == NULL) continue;
+
+    net().download_to_temp(std::string(PRIMARY_URL) + item.first, local_file_path);
+#if _DEBUG
+    printf("Downloading asset from cache lookup: %s\n", item.second.c_str());
+#endif
+  }
+  
+  for (const auto& game : southbankJson["games"].items()) {
+    std::filesystem::path game_asset_dir = appdata_path / game.key();
+    if (!std::filesystem::exists(game_asset_dir)) {
+      std::filesystem::create_directory(game_asset_dir);
+    }
+
+    for (const auto& belmont_item : game.value()["belmont"].items()) {
+      bool is_asset =
+          belmont_item.value().is_array();  // Southbank holds colors & assets in the same object, by looking if it is
+                                            // an array we can tell if it has an sha256 value or not
+      if (!is_asset) continue;
+
+      std::string file_url = belmont_item.value()[0].get<std::string>();
+      std::string file_extension = file_url.substr(file_url.find_last_of("."));
+      std::string server_file_checksum = belmont_item.value()[1].get<std::string>();
+      std::filesystem::path local_file_path = game_asset_dir / (belmont_item.key() + file_extension);
+      std::string local_file_checksum = A_SHA256(local_file_path.string());
+      if (strncmp(local_file_checksum.c_str(), server_file_checksum.c_str(), 64) == NULL) continue;
+
+      net().download_to_temp(file_url, local_file_path.string());
+#if _DEBUG
+      printf("Downloading game asset: %s\n", file_url.c_str());
+#endif
+    }
+  }
 }
 
 std::filesystem::path palace::find_sourcemod_path() {

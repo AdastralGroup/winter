@@ -1,13 +1,5 @@
 #include <kachemak/kachemak.hpp>
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-#define popen _popen
-#define BUTLER "butler.exe"
-#define pclose _pclose
-#else
-#define BUTLER "butler"
-#endif
-
 Kachemak::Kachemak(const std::filesystem::path& szSourcemodPath, const std::filesystem::path& szFolderName,
                    const std::string& szSourceUrl)
     : Version(szSourcemodPath, szFolderName, szSourceUrl) {
