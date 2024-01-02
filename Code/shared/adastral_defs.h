@@ -1,5 +1,4 @@
-#ifndef WINTER_SHARED_HEADER
-#define WINTER_SHARED_HEADER
+#pragma once
 #ifndef GODOT
 #include <cstdio>
 #include <cstdarg>
@@ -24,4 +23,3 @@
 
 std::string A_SHA256(std::string filename);
 void A_printf(const char *const format ,...);
-#endif

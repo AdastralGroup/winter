@@ -1,12 +1,12 @@
 #include <kachemak/kachemak.hpp>
 
 Kachemak::Kachemak(const std::filesystem::path& szSourcemodPath, const std::filesystem::path& szFolderName,
-                   const std::string& szSourceUrl)
+                   const std::string& szSourceUrl, const std::filesystem::path& ButlerPath)
     : Version(szSourcemodPath, szFolderName, szSourceUrl) {
   // placeholder
   m_szTempPath = std::filesystem::temp_directory_path().string();
   name = szFolderName.string(); // this is bad don't do this
-  m_szButlerLocation = std::filesystem::temp_directory_path() / BUTLER;
+  m_szButlerLocation = ButlerPath;
   std::string ver_string = net().get_string_data_from_server(szSourceUrl + "bullseye.json");
   if(!nlohmann::json::accept(ver_string)){
     throw std::runtime_error("INVALID JSON. \n " + szSourceUrl + "bullseye.json");

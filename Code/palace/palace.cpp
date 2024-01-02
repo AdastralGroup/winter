@@ -1,8 +1,6 @@
 #include "palace.hpp"
 
 palace::palace() {
-  A_printf("[Palace/Init] Downloading butler. Hold on.\n");
-  net::get_butler();
   A_printf("[Palace/Init] Fetching server data...\n");
   fetch_server_data();
   download_assets();
@@ -17,6 +15,8 @@ palace::~palace() {
   }
 }
 
+
+
 void palace::fetch_server_data() {
   std::string json = net().get_string_data_from_server(std::string(PRIMARY_URL) + "southbank2.json");
   southbankJson = nlohmann::json::parse(json);  // do error checking here
@@ -27,35 +27,34 @@ void palace::download_assets() {
 #ifdef _WIN32
   std::filesystem::path appdata_path = std::filesystem::path(getenv("APPDATA")) / "adastral";
 #else
-  std::filesystem::path appdata_path = std::filesystem::path("./local/share") / "adastral";
+  std::filesystem::path appdata_path = std::filesystem::path(getenv("HOME")) / ".local" / "share" / "adastral";
 #endif
-
   if (!std::filesystem::exists(appdata_path)) {
     std::filesystem::create_directory(appdata_path);
   }
+  std::unordered_map<std::string,std::string> initmap = {
+    {BUTLER, std::string(BUTLER) + ".sha256"}
+  };
 
-  // {local path to file, server path to hash file}
-  std::vector<std::pair<std::string, std::string>> cache_lookup = {
-    {BUTLER, std::string(BUTLER) + ".sha256"}};
-
-  for (auto& item : cache_lookup) {
+  for (auto& item : initmap) {
     std::string local_file_path = (appdata_path / item.first).string();
     std::string local_hash = A_SHA256(local_file_path);
     std::string server_hash = net().get_string_data_from_server(std::string(PRIMARY_URL) + item.second);
+    cachemap[item.first] = local_file_path; // very naughty
     if (strncmp(local_hash.c_str(), server_hash.c_str(), 64) == NULL) continue;
-
     net().download_to_temp(std::string(PRIMARY_URL) + item.first, local_file_path);
+    A_printf("%s | %s",item.first.c_str(),local_file_path.c_str());
 #if _DEBUG
     printf("Downloading asset from cache lookup: %s\n", item.second.c_str());
 #endif
   }
-  
+#ifndef GODOT
+#else
   for (const auto& game : southbankJson["games"].items()) {
     std::filesystem::path game_asset_dir = appdata_path / game.key();
     if (!std::filesystem::exists(game_asset_dir)) {
       std::filesystem::create_directory(game_asset_dir);
     }
-
     for (const auto& belmont_item : game.value()["belmont"].items()) {
       bool is_asset =
           belmont_item.value().is_array();  // Southbank holds colors & assets in the same object, by looking if it is
@@ -67,14 +66,19 @@ void palace::download_assets() {
       std::string server_file_checksum = belmont_item.value()[1].get<std::string>();
       std::filesystem::path local_file_path = game_asset_dir / (belmont_item.key() + file_extension);
       std::string local_file_checksum = A_SHA256(local_file_path.string());
+      cachemap[server_file_checksum] = local_file_path;
       if (strncmp(local_file_checksum.c_str(), server_file_checksum.c_str(), 64) == NULL) continue;
-
       net().download_to_temp(file_url, local_file_path.string());
 #if _DEBUG
       printf("Downloading game asset: %s\n", file_url.c_str());
 #endif
     }
   }
+#endif
+}
+
+std::filesystem::path palace::get_asset(std::string hash) {
+    return cachemap[hash];
 }
 
 std::filesystem::path palace::find_sourcemod_path() {
@@ -124,7 +128,7 @@ int palace::init_games() {
     full_url += id;
     full_url += '/';  // this is dumb, make it do this inside kachemak....
     auto* game = new Kachemak(sourcemodsPath, it.key(),
-                              full_url);  // getting the json is versioning impl specific so we let it get it
+                              full_url,get_asset(BUTLER));  // getting the json is versioning impl specific so we let it get it
     // i'm aware i'm breaking one of the rules, but it makes more sense
     serverGames[id]->l1 = game;
   }
