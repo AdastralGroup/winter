@@ -136,6 +136,7 @@ int palace::init_games() {
 }
 
 int palace::update_game(const std::string& game_name) {
+  A_printf("[Palace/UpdateGame] Updating %s....",game_name.c_str());
   if (serverGames[game_name]->l1->GetInstalledVersion().empty()) {
     serverGames[game_name]->l1->Install();
   }

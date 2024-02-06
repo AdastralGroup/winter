@@ -148,6 +148,7 @@ res:
 */
 
 int Kachemak::Update() {
+  A_printf("[Kachemak/Update] Updating %s... ",m_szFolderName.c_str());
   if (m_szInstalledVersion == GetLatestVersion() || force_verify){
     return 3;
   }
@@ -177,7 +178,8 @@ int Kachemak::Update() {
 
   std::stringstream patchUrlFull_ss;
   patchUrlFull_ss << m_szSourceUrl << patch.value().szUrl;
-  std::filesystem::path stagingPath = m_szSourcemodPath / "butler-staging"; // make this dynamic, so we can download multiple games at once
+  std::filesystem::path stagingPath = m_szSourcemodPath / ("butler-staging-" + m_szFolderName.string()); // make this dynamic, so we can download multiple games at once
+  A_printf("[Kachemak/Update] Patching %s from %s to %s, with staging dir at %s. ",m_szFolderName.c_str(),installedVersion.value().szVersion.c_str(),GetLatestVersion().c_str(),stagingPath.c_str());
   int patchRes = ButlerPatch(patchUrlFull_ss.str(), stagingPath.string(), patch.value().szFilename,
                              dataDir_path.string(), patch.value().lTempRequired);
 
@@ -196,7 +198,7 @@ int Kachemak::Install() {
   int diskSpaceStatus = FreeSpaceCheck(latestVersion.value().lDownloadSize, FreeSpaceCheckCategory::Temporary);
   if (diskSpaceStatus != 0) return diskSpaceStatus;
   std::string downloadUri = m_szSourceUrl + latestVersion.value().szDownloadUrl;
-  A_printf("[Kachemak/Install] Downloading via torrent... \n");
+  A_printf("[Kachemak/Install] Downloading from fusion...\n");
   //int downloadStatus =
   std::filesystem::path path = net::download_to_temp(downloadUri, latestVersion.value().szFileName, true,&m_eventSystem);
   //if (downloadStatus != 0) {
@@ -230,7 +232,7 @@ int Kachemak::Extract(const std::string& szInputFile, const std::string& szOutpu
   std::string tmpf_loc = std::to_string(fileno(tmpf));
   int ret = sys::ExtractZip(szInputFile, szOutputDirectory);
   if (ret != 0) {
-    A_printf("[Kachemak/Extract] Extraction Failed - %i\n",ret);
+    A_printf("[Kachemak/Extract] Extraction Failed - %s\n",zip_strerror(ret));
   }
   m_szInstalledVersion = GetLatestVersion();
   WriteVersion();
