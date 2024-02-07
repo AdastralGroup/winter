@@ -66,7 +66,7 @@ void palace::download_assets() {
       std::string server_file_checksum = belmont_item.value()[1].get<std::string>();
       std::filesystem::path local_file_path = game_asset_dir / (belmont_item.key() + file_extension);
       std::string local_file_checksum = A_SHA256(local_file_path.string());
-      cachemap[server_file_checksum] = local_file_path;
+      cachemap[server_file_checksum] = local_file_path.string();
       if (strncmp(local_file_checksum.c_str(), server_file_checksum.c_str(), 64) == NULL) continue;
       net().download_to_temp(file_url, local_file_path.string());
 #if _DEBUG
