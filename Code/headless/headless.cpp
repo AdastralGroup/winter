@@ -27,7 +27,6 @@ int main() {
       return code;
   }
   p->fetch_server_data();
-
   for (const auto& i : p->serverGames) {
     std::cout << "[headless] "
               << "Game Available: " << i.second->name << " (" << i.first << ")" << std::endl;
