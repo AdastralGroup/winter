@@ -30,7 +30,9 @@ void palace::download_assets() {
   std::filesystem::path appdata_path = std::filesystem::path(getenv("HOME")) / ".local" / "share" / "adastral";
 #endif
   if (!std::filesystem::exists(appdata_path)) {
-    std::filesystem::create_directory(appdata_path);
+    if (!std::filesystem::create_directory(appdata_path)) {
+      A_printf("hello??\n");
+    }
   }
   std::unordered_map<std::string,std::string> initmap = {
     {BUTLER, std::string(BUTLER) + ".sha256"}
@@ -42,7 +44,7 @@ void palace::download_assets() {
     std::string server_hash = net().get_string_data_from_server(std::string(PRIMARY_URL) + item.second);
     cachemap[item.first] = local_file_path; // very naughty
     if (strncmp(local_hash.c_str(), server_hash.c_str(), 64) == NULL) continue;
-    net().download_to_temp(std::string(PRIMARY_URL) + item.first, local_file_path);
+    net().download_to_temp(std::string(PRIMARY_URL) + item.first, item.first, false, nullptr, &appdata_path);
     A_printf("%s | %s",item.first.c_str(),local_file_path.c_str());
 #if _DEBUG
     printf("Downloading asset from cache lookup: %s\n", item.second.c_str());
@@ -68,7 +70,7 @@ void palace::download_assets() {
       std::string local_file_checksum = A_SHA256(local_file_path.string());
       cachemap[server_file_checksum] = local_file_path.string();
       if (strncmp(local_file_checksum.c_str(), server_file_checksum.c_str(), 64) == NULL) continue;
-      net().download_to_temp(file_url, local_file_path.string());
+      net().download_to_temp(file_url, (belmont_item.key() + file_extension), false, nullptr, &game_asset_dir);
 #if _DEBUG
       printf("Downloading game asset: %s\n", file_url.c_str());
 #endif
