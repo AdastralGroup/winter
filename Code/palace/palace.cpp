@@ -4,10 +4,6 @@ palace::palace() {
   A_printf("[Palace/Init] Fetching server data...\n");
   fetch_server_data();
   download_assets();
-
-#if _DEBUG
-  printf("Soucemods dir: %s\n", sourcemodsPath.string().c_str());
-#endif
 }
 palace::~palace() {
   for (const auto& it : serverGames) {
@@ -48,8 +44,8 @@ void palace::download_assets() {
     printf("Downloading asset from cache lookup: %s\n", item.second.c_str());
 #endif
   }
-#ifndef GODOT
-#else
+//#ifndef GODOT
+//#else
   for (const auto& game : southbankJson["games"].items()) {
     std::filesystem::path game_asset_dir = appdata_path / game.key();
     if (!std::filesystem::exists(game_asset_dir)) {
@@ -74,27 +70,31 @@ void palace::download_assets() {
 #endif
     }
   }
-#endif
+//#endif
 }
 
 std::filesystem::path palace::get_asset(std::string hash) {
-    return cachemap[hash];
+  A_printf("[Palace/GetAsset]checking if cachemap contains %s\n",hash.c_str());
+  if (!cachemap.contains(hash)) {
+    return "";
+  }
+  return cachemap[hash];
 }
 
 std::filesystem::path palace::find_sourcemod_path() {
   std::filesystem::path steamPath = sys::GetSteamPath();
   if (steamPath != "") {
-    A_printf("[Palace] Steam Path found!\n");
+    A_printf("[Palace/FindSourcemodPath] Steam Path found!\n");
     sourcemodsPath = steamPath / "steamapps" / "sourcemods";
     if (std::filesystem::exists(sourcemodsPath)) {
-      A_printf("[Palace] Sourcemod folder exists\n");
+      A_printf("[Palace/FindSourcemodPath] Sourcemod folder exists\n");
       return sourcemodsPath;
     } else {
-      A_printf("[Palace] Sourcemod folder doesn't exist - creating...\n");
+      A_printf("[Palace/FindSourcemodPath] Sourcemod folder doesn't exist - creating...\n");
       std::filesystem::create_directories(sourcemodsPath);
     }
   } else {
-    A_printf("[Palace] NO STEAM PATH?!\n");
+    A_printf("[Palace/FindSourcemodPath] NO STEAM PATH?!\n");
   }
   return sourcemodsPath;
 }
