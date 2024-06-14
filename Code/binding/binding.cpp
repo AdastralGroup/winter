@@ -73,7 +73,7 @@ void binding::_init_palace() {
   emit_signal("palace_started");
 }
 
-void binding::_raise_error(std::string error_str, uint err_level) {
+void binding::_raise_error(std::string error_str, unsigned int err_level) {
   emit_signal("error");
 }
 
