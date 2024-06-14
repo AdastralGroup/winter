@@ -66,7 +66,7 @@ void binding::init_palace() {  // yucky hack but we can manually start palace fr
 void binding::_init_palace() {
   A_init_error_system();
   A_error_system->RegisterListener(EventType::kOnError, [this](Event& ev) {
-      emit_signal("error", String(static_cast<ErrorMessage&>(ev).GetMessage().c_str()));
+      emit_signal("error", String(static_cast<ErrorMessage&>(ev).get_message().c_str()));
     });
   UtilityFunctions::print("[binding] Firing up palace!");
   p = new palace;

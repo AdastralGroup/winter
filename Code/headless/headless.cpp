@@ -4,7 +4,7 @@ int main() {
   auto p = new palace;  // does sanity checks
   A_init_error_system();
   A_error_system->RegisterListener(EventType::kOnError, [](Event& ev) {
-    printf(static_cast<ErrorMessage&>(ev).GetMessage().c_str());
+    printf(static_cast<ErrorMessage&>(ev).get_message().c_str());
   });
   p->find_sourcemod_path();
   if (p->sourcemodsPath.empty()) {
