@@ -208,7 +208,7 @@ int Kachemak::Install() {
   }
   A_printf("[Kachemak/Install] Download complete: extracting... \n");
   std::filesystem::create_directory(m_szSourcemodPath.string() / m_szFolderName);
-  int err_c = Extract(latestVersion.value().szFileName, m_szSourcemodPath.string() / m_szFolderName, latestVersion.value().lExtractSize);
+  int err_c = Extract(latestVersion.value().szFileName, (m_szSourcemodPath / m_szFolderName).string(), latestVersion.value().lExtractSize);
   //Extract( path.string() , (m_szSourcemodPath/ m_szFolderName).string() , latestVersion.value().lExtractSize);
   if(err_c == 0) {
     A_printf("[Kachemak/Install] Extraction done! \n");
@@ -233,7 +233,6 @@ int Kachemak::Extract(const std::string& szInputFile, const std::string& szOutpu
     A_printf("[Kachemak/Extract] Not enough space. Exiting. \n");
     return 1;
   }
-  A_printf((m_szTempPath / szInputFile).c_str());
   int ret = sys::ExtractZip((m_szTempPath / szInputFile).string(), szOutputDirectory);
   if (ret != 0) {
     A_error("[Kachemak/Extract] Extraction Failed - %s\n",zip_strerror(ret));
